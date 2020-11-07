@@ -1,4 +1,3 @@
-```
 # Predis #
 
 [![Software license][ico-license]](LICENSE)
@@ -49,12 +48,12 @@ Predis relies on the autoloading features of PHP to load its files when needed a
 Autoloading is handled automatically when dependencies are managed through Composer, but it is also
 possible to leverage its own autoloader in projects or scripts lacking any autoload facility:
 
-​```php
+```php
 // Prepend a base path if Predis is not available in your "include_path".
 require 'Predis/Autoloader.php';
 
 Predis\Autoloader::register();
-​```
+```
 
 It is also possible to create a [phar](http://www.php.net/manual/en/intro.phar.php) archive directly
 from the repository by launching the `bin/create-phar` script. The generated phar already contains a
@@ -66,17 +65,17 @@ stub defining its own autoloader, so you just need to `require()` it to start us
 When creating a client instance without passing any connection parameter, Predis assumes `127.0.0.1`
 and `6379` as default host and port. The default timeout for the `connect()` operation is 5 seconds:
 
-​```php
+```php
 $client = new Predis\Client();
 $client->set('foo', 'bar');
 $value = $client->get('foo');
-​```
+```
 
 Connection parameters can be supplied either in the form of URI strings or named arrays. The latter
 is the preferred way to supply parameters, but URI strings can be useful when parameters are read
 from non-structured or partially-structured sources:
 
-​```php
+```php
 // Parameters passed using a named array:
 $client = new Predis\Client([
     'scheme' => 'tcp',
@@ -86,7 +85,7 @@ $client = new Predis\Client([
 
 // Same set of parameters, passed using an URI string:
 $client = new Predis\Client('tcp://10.0.0.1:6379');
-​```
+```
 
 Password protected servers can be accessed by adding `password` to the parameters set. When ACLs are
 enabled on Redis >= 6.0, both `username` and `password` are required for user authentication.
@@ -94,17 +93,17 @@ enabled on Redis >= 6.0, both `username` and `password` are required for user au
 It is also possible to connect to local instances of Redis using UNIX domain sockets, in this case
 the parameters must use the `unix` scheme and specify a path for the socket file:
 
-​```php
+```php
 $client = new Predis\Client(['scheme' => 'unix', 'path' => '/path/to/redis.sock']);
 $client = new Predis\Client('unix:/path/to/redis.sock');
-​```
+```
 
 The client can leverage TLS/SSL encryption to connect to secured remote Redis instances without the
 need to configure an SSL proxy like stunnel. This can be useful when connecting to nodes running on
 various cloud hosting providers. Encryption can be enabled with using the `tls` scheme and an array
 of suitable [options](http://php.net/manual/context.ssl.php) passed via the `ssl` parameter:
 
-​```php
+```php
 // Named array of connection parameters:
 $client = new Predis\Client([
   'scheme' => 'tls',
@@ -113,7 +112,7 @@ $client = new Predis\Client([
 
 // Same set of parameters, but using an URI string:
 $client = new Predis\Client('tls://127.0.0.1?ssl[cafile]=private.pem&ssl[verify_peer]=1');
-​```
+```
 
 The connection schemes [`redis`](http://www.iana.org/assignments/uri-schemes/prov/redis) (alias of
 `tcp`) and [`rediss`](http://www.iana.org/assignments/uri-schemes/prov/rediss) (alias of `tls`) are
@@ -127,12 +126,12 @@ When an array of connection parameters is provided, Predis automatically works i
 client-side sharding. Both named arrays and URI strings can be mixed when providing configurations
 for each node:
 
-​```php
+```php
 $client = new Predis\Client([
     'tcp://10.0.0.1?alias=first-node',
     ['host' => '10.0.0.2', 'alias' => 'second-node'],
 ]);
-​```
+```
 
 See the [aggregate connections](#aggregate-connections) section of this document for more details.
 
@@ -148,9 +147,9 @@ of these methods on aggregate connections may differ depending on each specific 
 Many aspects and behaviors of the client can be configured by passing specific client options to the
 second argument of `Predis\Client::__construct()`:
 
-​```php
+```php
 $client = new Predis\Client($parameters, ['profile' => '2.8', 'prefix' => 'sample:']);
-​```
+```
 
 Options are managed using a mini DI-alike container and their values can be lazily initialized only
 when needed. The client options supported by default in Predis are:
@@ -183,11 +182,11 @@ client-side sharding approach to create a cluster of independent nodes and distr
 among them. This approach needs some form of external health monitoring of nodes and requires manual
 operations to rebalance the keyspace when changing its configuration by adding or removing nodes:
 
-​```php
+```php
 $parameters = ['tcp://10.0.0.1', 'tcp://10.0.0.2', 'tcp://10.0.0.3'];
 
 $client = new Predis\Client($parameters);
-​```
+```
 
 Along with Redis 3.0, a new supervised and coordinated type of clustering was introduced in the form
 of [redis-cluster](http://redis.io/topics/cluster-tutorial). This kind of approach uses a different
@@ -197,12 +196,12 @@ order to connect to a cluster managed by redis-cluster, the client requires a li
 necessarily complete since it will automatically discover new nodes if necessary) and the `cluster`
 client options set to `redis`:
 
-​```php
+```php
 $parameters = ['tcp://10.0.0.1', 'tcp://10.0.0.2', 'tcp://10.0.0.3'];
 $options    = ['cluster' => 'redis'];
 
 $client = new Predis\Client($parameters, $options);
-​```
+```
 
 #### Replication ####
 
@@ -217,12 +216,12 @@ The basic configuration needed to use the client in replication mode requires on
 identified as the master (this can be done via connection parameters using the `alias` parameter set
 to `master`) and one or more servers acting as slaves:
 
-​```php
+```php
 $parameters = ['tcp://10.0.0.1?alias=master', 'tcp://10.0.0.2', 'tcp://10.0.0.3'];
 $options    = ['replication' => true];
 
 $client = new Predis\Client($parameters, $options);
-​```
+```
 
 The above configuration has a static list of servers and relies entirely on the client's logic, but
 it is possible to rely on [`redis-sentinel`](http://redis.io/topics/sentinel) for a more robust HA
@@ -231,18 +230,18 @@ The minimum configuration required by the client to work with redis-sentinel is 
 parameters pointing to a bunch of sentinel instances, the `replication` option set to `sentinel` and
 the `service` option set to the name of the service:
 
-​```php
+```php
 $sentinels = ['tcp://10.0.0.1', 'tcp://10.0.0.2', 'tcp://10.0.0.3'];
 $options   = ['replication' => 'sentinel', 'service' => 'mymaster'];
 
 $client = new Predis\Client($sentinels, $options);
-​```
+```
 
 If the master and slave nodes are configured to require an authentication from clients, a password
 must be provided via the global `parameters` client option. This option can also be used to specify
 a different database index. The client options array would then look like this:
 
-​```php
+```php
 $options = [
     'replication' => 'sentinel',
     'service' => 'mymaster',
@@ -251,7 +250,7 @@ $options = [
         'database' => 10,
     ],
 ];
-​```
+```
 
 While Predis is able to distinguish commands performing write and read-only operations, `EVAL` and
 `EVALSHA` represent a corner case in which the client switches to the master node because it cannot
@@ -259,7 +258,7 @@ tell when a Lua script is safe to be executed on slaves. While this is indeed th
 when certain Lua scripts do not perform write operations it is possible to provide an hint to tell
 the client to stick with slaves for their execution:
 
-​```php
+```php
 $parameters = ['tcp://10.0.0.1?alias=master', 'tcp://10.0.0.2', 'tcp://10.0.0.3'];
 $options    = ['replication' => function () {
     // Set scripts that won't trigger a switch from a slave to the master node.
@@ -272,7 +271,7 @@ $options    = ['replication' => function () {
 $client = new Predis\Client($parameters, $options);
 $client->eval($LUA_SCRIPT, 0);             // Sticks to slave using `eval`...
 $client->evalsha(sha1($LUA_SCRIPT), 0);    // ... and `evalsha`, too.
-​```
+```
 
 The [`examples`](examples/) directory contains a few scripts that demonstrate how the client can be
 configured and used to leverage replication in both basic and complex scenarios.
@@ -285,7 +284,7 @@ latency introduced by network round-trip timings. Pipelining also works with agg
 The client can execute the pipeline inside a callable block or return a pipeline instance with the
 ability to chain commands thanks to its fluent interface:
 
-​```php
+```php
 // Executes a pipeline inside the given callable block:
 $responses = $client->pipeline(function ($pipe) {
     for ($i = 0; $i < 1000; $i++) {
@@ -296,7 +295,7 @@ $responses = $client->pipeline(function ($pipe) {
 
 // Returns a pipeline that can be chained thanks to its fluent interface:
 $responses = $client->pipeline()->set('foo', 'bar')->get('foo')->execute();
-​```
+```
 
 
 ### Transactions ###
@@ -304,7 +303,7 @@ $responses = $client->pipeline()->set('foo', 'bar')->get('foo')->execute();
 The client provides an abstraction for Redis transactions based on `MULTI` and `EXEC` with a similar
 interface to command pipelines:
 
-​```php
+```php
 // Executes a transaction inside the given callable block:
 $responses = $client->transaction(function ($tx) {
     $tx->set('foo', 'bar');
@@ -313,7 +312,7 @@ $responses = $client->transaction(function ($tx) {
 
 // Returns a transaction that can be chained thanks to its fluent interface:
 $responses = $client->transaction()->set('foo', 'bar')->get('foo')->execute();
-​```
+```
 
 This abstraction can perform check-and-set operations thanks to `WATCH` and `UNWATCH` and provides
 automatic retries of transactions aborted by Redis when `WATCH`ed keys are touched. For an example
@@ -327,7 +326,7 @@ prefer to stick with an old version of the library or provide a different way to
 parse responses for specific commands. To achieve that, Predis provides the ability to implement new
 command classes to define or override commands in the default server profiles used by the client:
 
-​```php
+```php
 // Define a new command by extending Predis\Command\Command:
 class BrandNewRedisCommand extends Predis\Command\Command
 {
@@ -342,15 +341,15 @@ $client = new Predis\Client();
 $client->getProfile()->defineCommand('newcmd', 'BrandNewRedisCommand');
 
 $response = $client->newcmd();
-​```
+```
 
 There is also a method to send raw commands without filtering their arguments or parsing responses.
 Users must provide the list of arguments for the command as an array, following the signatures as
 defined by the [Redis documentation for commands](http://redis.io/commands):
 
-​```php
+```php
 $response = $client->executeRaw(['SET', 'foo', 'bar']);
-​```
+```
 
 
 ### Script commands ###
@@ -364,7 +363,7 @@ remote execution. Internally they use [`EVALSHA`](http://redis.io/commands/evals
 identify a script by its SHA1 hash to save bandwidth, but [`EVAL`](http://redis.io/commands/eval)
 is used as a fall back when needed:
 
-​```php
+```php
 // Define a new script command by extending Predis\Command\ScriptCommand:
 class ListPushRandomValue extends Predis\Command\ScriptCommand
 {
@@ -389,7 +388,7 @@ $client = new Predis\Client();
 $client->getProfile()->defineCommand('lpushrand', 'ListPushRandomValue');
 
 $response = $client->lpushrand('random_values', $seed = mt_rand());
-​```
+```
 
 
 ### Customizable connection backends ###
@@ -399,20 +398,20 @@ extension such as [phpiredis](https://github.com/nrk/phpiredis) resulting in maj
 especially when dealing with big multibulk responses. While one is based on PHP streams, the other
 is based on socket resources provided by `ext-socket`. Both support TCP/IP and UNIX domain sockets:
 
-​```php
+```php
 $client = new Predis\Client('tcp://127.0.0.1', [
     'connections' => [
         'tcp'  => 'Predis\Connection\PhpiredisStreamConnection',  // PHP stream resources
         'unix' => 'Predis\Connection\PhpiredisSocketConnection',  // ext-socket resources
     ],
 ]);
-​```
+```
 
 Developers can create their own connection classes to support whole new network backends, extend
 existing classes or provide completely different implementations. Connection classes must implement
 `Predis\Connection\NodeConnectionInterface` or extend `Predis\Connection\AbstractConnection`:
 
-​```php
+```php
 class MyConnectionClass implements Predis\Connection\NodeConnectionInterface
 {
     // Implementation goes here...
@@ -422,7 +421,7 @@ class MyConnectionClass implements Predis\Connection\NodeConnectionInterface
 $client = new Predis\Client('tcp://127.0.0.1', [
     'connections' => ['tcp' => 'MyConnectionClass'],
 ]);
-​```
+```
 
 For a more in-depth insight on how to create new connection backends you can refer to the actual
 implementation of the standard connection classes available in the `Predis\Connection` namespace.
@@ -488,4 +487,3 @@ The code for Predis is distributed under the terms of the MIT license (see [LICE
 [link-packagist]: https://packagist.org/packages/predis/predis
 [link-travis]: https://travis-ci.org/predis/predis
 [link-downloads]: https://packagist.org/packages/predis/predis/stats
-```
